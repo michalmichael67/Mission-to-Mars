@@ -20,14 +20,15 @@ def scrape_all():
       "news_paragraph": news_paragraph,
       "featured_image": featured_image(browser),
       "facts": mars_facts(),
-      "last_modified": dt.datetime.now()
+      "hemispheres": hemispheres(browser),
+      "last_modified": dt.datetime.now(),
     }
     browser.quit()
     return data
 
 def mars_news(browser):
     # Visit the Mars news site
-    url = 'https://data-class-mars.s3.amazonaws.com/Mars/index.html'
+    url = 'https://redplanetscience.com'
     browser.visit(url)
 
     # Optional delay for loading the page
@@ -57,7 +58,7 @@ def mars_news(browser):
 def featured_image(browser):
 
     # Visit URL
-    url = 'https://data-class-jpl-space.s3.amazonaws.com/JPL_Space/index.html'
+    url = 'https://spaceimages-mars.com'
     browser.visit(url)
 
     # Find and click the full image button
@@ -86,13 +87,47 @@ def featured_image(browser):
 def mars_facts():
     try:
 
-        df = pd.read_html('https://data-class-mars-facts.s3.amazonaws.com/Mars_Facts/index.html')[0]
+        df = pd.read_html('https://galaxyfacts-mars.com')[0]
     except BaseException:
         return None
     df.columns=['Description', 'Mars', 'Earth']
     df.set_index('Description', inplace=True)
 
     return df.to_html(classes="table table-striped")
+
+# ## Hemisphere Data
+
+def hemispheres(browser):
+    
+    url = 'https://marshemispheres.com/'
+    browser.visit(url)
+
+    hemisphere_image_urls = []
+    
+    for hemis in range(4):
+        
+        # Browse through each article
+        browser.links.find_by_partial_text('Hemisphere')[hemis].click()
+        
+        # Parse the html
+        html = browser.html
+        hemi_soup = soup(html, 'html.parser')
+        
+        # Scraping
+        title = hemi_soup.find('h2', class_='title').text
+        img_url = hemi_soup.find('li').a.get('href')
+        
+        # Store findings to a dictionary and append to list
+        hemispheres = {}
+        hemispheres['img_url'] = f'https://marshemispheres.com/{img_url}'
+        hemispheres['title'] = title
+        hemisphere_image_urls.append(hemispheres)
+        
+        # Browse back to repeat
+        browser.back()
+        
+    return hemisphere_image_urls
+
 
 if __name__ == "__main__":
     # If running as script, print scraped data

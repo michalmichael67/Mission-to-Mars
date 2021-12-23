@@ -1,4 +1,5 @@
-![](/Users/michalmichael/Documents/DABootCamp/Visualization/web_scraping/Mission-to-Mars/module work/screenshots/Screen Shot 2021-12-22 at 7.32.43 PM.png)
+![banner.png](module_work/screenshots/banner.png)
+
 # Mission-to-Mars
 
 ## Overview
